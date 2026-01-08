@@ -27,12 +27,26 @@ const Login = ({ setUser }) => {
     setError('');
 
     try {
+      console.log('🔐 Attempting login with:', { email: formData.email });
       const response = await authApi.login(formData);
-      setUser(response.data.user);
-      localStorage.setItem('user', JSON.stringify(response.data.user));
-      navigate('/dashboard');
+      console.log('✅ Login response:', response.data);
+      
+      if (response.status === 200 && response.data.user) {
+        console.log('🎉 Login successful, setting user and redirecting...');
+        setUser(response.data.user);
+        localStorage.setItem('user', JSON.stringify(response.data.user));
+        navigate('/dashboard');
+      } else {
+        console.error('❌ Unexpected response:', response);
+        setError('Unexpected response from server');
+      }
     } catch (err) {
-      const errorMsg = err.response?.data?.error || 'Login failed. Please try again.';
+      console.error('❌ Login error:', {
+        status: err.response?.status,
+        data: err.response?.data,
+        message: err.message,
+      });
+      const errorMsg = err.response?.data?.error || err.response?.data?.message || 'Login failed. Please try again.';
       setError(errorMsg);
     } finally {
       setLoading(false);

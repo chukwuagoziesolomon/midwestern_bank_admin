@@ -1,13 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import toast, { Toaster } from 'react-hot-toast';
-import { FaUsers, FaCheck, FaTimes, FaSync, FaTrash, FaSignOutAlt } from 'react-icons/fa';
+import { FaUsers, FaCheck, FaTimes, FaSync, FaTrash } from 'react-icons/fa';
 import { adminApi } from '../api/client';
 import DateModal from './DateModal';
 import '../styles/AdminDashboard.css';
 
-const AdminDashboard = ({ user, setUser }) => {
-  const navigate = useNavigate();
+const AdminDashboard = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(null);
@@ -16,12 +14,8 @@ const AdminDashboard = ({ user, setUser }) => {
   const [pendingUserId, setPendingUserId] = useState(null);
 
   useEffect(() => {
-    if (!user) {
-      navigate('/login');
-      return;
-    }
     fetchUsers();
-  }, [user, navigate]);
+  }, []);
 
   const fetchUsers = async () => {
     try {
@@ -142,9 +136,7 @@ const AdminDashboard = ({ user, setUser }) => {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('user');
-    setUser(null);
-    navigate('/login');
+    // Logout functionality removed - dashboard is now public
   };
 
   if (loading) {
@@ -171,14 +163,6 @@ const AdminDashboard = ({ user, setUser }) => {
         <div className="header-left">
           <h1><FaUsers /> Admin Dashboard</h1>
           <p className="subtitle">Manage user accounts and approvals</p>
-        </div>
-        <div className="header-right">
-          <div className="user-info">
-            Welcome, <strong>{user?.first_name}</strong>
-          </div>
-          <button onClick={handleLogout} className="logout-btn">
-            <FaSignOutAlt /> Logout
-          </button>
         </div>
       </header>
 
