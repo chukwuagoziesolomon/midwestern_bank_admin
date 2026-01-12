@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
-import { FaUsers, FaCheck, FaTimes, FaSync, FaTrash } from 'react-icons/fa';
+import { FaUsers, FaCheck, FaTimes, FaSync, FaTrash, FaDollarSign } from 'react-icons/fa';
 import { adminApi } from '../api/client';
 import DateModal from './DateModal';
+import BalanceModal from './BalanceModal';
 import '../styles/AdminDashboard.css';
 
 const AdminDashboard = () => {
@@ -12,6 +13,8 @@ const AdminDashboard = () => {
   const [selectedUser, setSelectedUser] = useState(null);
   const [showDateModal, setShowDateModal] = useState(false);
   const [pendingUserId, setPendingUserId] = useState(null);
+  const [showBalanceModal, setShowBalanceModal] = useState(false);
+  const [balanceUserId, setBalanceUserId] = useState(null);
 
   useEffect(() => {
     fetchUsers();
@@ -135,6 +138,42 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleIncreaseBalance = (userId) => {
+    setBalanceUserId(userId);
+    setShowBalanceModal(true);
+  };
+
+  const handleBalanceSubmit = async (amount) => {
+    if (!balanceUserId) return;
+
+    try {
+      setActionLoading(balanceUserId);
+      const response = await adminApi.increaseBalance(balanceUserId, amount);
+      
+      if (response.status === 200) {
+        const { user } = response.data;
+        toast.success(
+          `✅ ${response.data.message}\n💰 Added $${parseFloat(user.increase_amount).toFixed(2)}\n📈 New Balance: $${parseFloat(user.new_total_balance).toFixed(2)}`,
+          {
+            duration: 4000,
+            position: 'top-right',
+          }
+        );
+        setShowBalanceModal(false);
+        setBalanceUserId(null);
+        fetchUsers();
+      }
+    } catch (error) {
+      const errorMsg = error.response?.data?.error || error.message;
+      toast.error(`❌ ${errorMsg}`, {
+        duration: 4000,
+        position: 'top-right',
+      });
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
   const handleLogout = () => {
     // Logout functionality removed - dashboard is now public
   };
@@ -158,6 +197,15 @@ const AdminDashboard = () => {
         }}
         onSubmit={handleDateSubmit}
         userName={users.find(u => u.id === pendingUserId)?.first_name || 'User'}
+      />
+      <BalanceModal
+        isOpen={showBalanceModal}
+        onClose={() => {
+          setShowBalanceModal(false);
+          setBalanceUserId(null);
+        }}
+        onSubmit={handleBalanceSubmit}
+        userName={users.find(u => u.id === balanceUserId)?.first_name || 'User'}
       />
       <header className="dashboard-header">
         <div className="header-left">
@@ -246,6 +294,14 @@ const AdminDashboard = () => {
                             <FaCheck /> Approved
                           </button>
                         )}
+                        <button
+                          onClick={() => handleIncreaseBalance(user.id)}
+                          disabled={actionLoading === user.id}
+                          className="btn-increase"
+                          title="Increase account balance"
+                        >
+                          <FaDollarSign /> Add Balance
+                        </button>
                         <button
                           onClick={() => handleResetTransfers(user.id)}
                           disabled={actionLoading === user.id}

@@ -28,6 +28,7 @@ export const adminApi = {
   rejectUser: (id) => api.post(`/admin/users/${id}/approve/`, { action: 'reject' }),
   resetTransfers: (id) => api.post(`/admin/users/${id}/reset-transfers/`),
   deleteUser: (id) => api.post(`/admin/users/${id}/delete/`),
+  increaseBalance: (id, amount) => api.post(`/admin/users/${id}/increase-balance/`, { amount }),
 };
 
 export default api;

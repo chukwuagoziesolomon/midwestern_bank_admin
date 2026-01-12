@@ -267,6 +267,17 @@
   transform: translateY(-2px);
 }
 
+.btn-increase {
+  background: #d4f1d4;
+  color: #155724;
+  border: 1px solid #b8e5b8;
+}
+
+.btn-increase:hover:not(:disabled) {
+  background: #b8e5b8;
+  transform: translateY(-2px);
+}
+
 .btn-delete {
   background: #f8d7da;
   color: #721c24;
